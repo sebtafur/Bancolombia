@@ -1,0 +1,54 @@
+defaultTasks 'clean', 'test', 'aggregate'
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+apply plugin: 'net.serenity-bdd.aggregator'
+
+group 'com.bancolombia.www'
+version '1.0-SNAPSHOT'
+sourceCompatibility = 1.8
+
+repositories {
+    jcenter()
+    mavenLocal()
+}
+
+buildscript{
+    repositories{
+        mavenLocal()
+        jcenter()
+    }
+    ext {
+        serenityVersion = '2.0.91'
+        serenityCucumberVersion = '1.9.51'
+    }
+    dependencies{
+        classpath("net.serenity-bdd:serenity-gradle-plugin:$rootProject.ext.serenityVersion")
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+dependencies {
+    implementation 'junit:junit:4.12'
+    compile group: 'org.slf4j', name: 'slf4j-simple', version: '2.0.0-alpha1'
+    compile group: 'org.hamcrest', name: 'hamcrest', version: '2.2'
+    compile group: 'net.serenity-bdd', name: 'serenity-cucumber', version: "$rootProject.ext.serenityCucumberVersion"
+    compile group: 'net.serenity-bdd', name: 'serenity-core', version: "$rootProject.ext.serenityVersion"
+    compile group: 'net.serenity-bdd', name: 'serenity-junit', version: "$rootProject.ext.serenityVersion"
+    compile group: 'net.serenity-bdd', name: 'serenity-screenplay-webdriver', version: "$rootProject.ext.serenityVersion"
+    compile group: 'net.serenity-bdd', name: 'serenity-screenplay', version: "$rootProject.ext.serenityVersion"
+    compile group: 'net.serenity-bdd', name: 'serenity-screenplay-rest', version: "$rootProject.ext.serenityVersion"
+}
+
+test {
+    systemProperties System.getProperties()
+    systemProperty "file.encoding", "UTF-8"
+    systemProperty "cucumber.options", System.properties.getProperty("cucumber.options")
+    testLogging.showStandardStreams = true
+    finalizedBy(aggregate)
+}
+
